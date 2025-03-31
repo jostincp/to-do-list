@@ -1,30 +1,68 @@
-export default function TodoList() {
-    return (
-        <div className="main-h-screen flex items-center justify-center bg-gray-900 text-white p-4">
-            <div className="w-full max-w-md bg-gray-800 p-6 rounded-lg shadow-lg">
-                <h1 className="text-2x1 font-bold tex-center mb-4">To-Do-List</h1>
-                
-                <div className="flex mb-4">
-                    <input
-                    type="text"
-                    placeholder="Nueva Tarea..."
-                    className="flex-grow p-2 rounded-1 bg-gray-700 text-white border-gray-600 focus:outline-none"
-                    />
-                    <button className="p-2 bg-blue-500 rounder-r hover:bg-blue-600">
-                        Agregar
-                    </button>
-                </div>
+// src/components/TodoList.jsx
+import { useContext, useState } from "react";
+import { TodoContext } from "../context/TodoContext";
 
-                <ul className="space-y-2">
-                    <li className="flex justify-between items-center bg-gray-700 p-2 rounded">
-                        <spna>Tarea de ejemplo</spna>
-                        <div>
-                            <button className="mr-2 text-green-400 hover:text-green-300">✔</button>
-                            <button className="text-red-400 hover:text-red-300">✖</button>
-                        </div>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    );
+function TodoList() {
+  const { tasks, addTask, toggleTask, deleteTask } = useContext(TodoContext);
+  const [newTask, setNewTask] = useState("");
+
+  const handleAddTask = (e) => {
+    e.preventDefault();
+    if (newTask.trim()) {
+      addTask(newTask);
+      setNewTask("");
+    }
+  };
+
+  return (
+    <div className="bg-gray-800 p-6 rounded-lg shadow-lg w-96">
+      <h1 className="text-2xl font-bold text-white mb-4">To-Do List</h1>
+      <form onSubmit={handleAddTask} className="mb-4">
+        <input
+          type="text"
+          value={newTask}
+          onChange={(e) => setNewTask(e.target.value)}
+          placeholder="Nueva tarea..."
+          className="w-full p-2 rounded-md bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+        <button
+          type="submit"
+          className="mt-2 w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-md"
+        >
+          Agregar
+        </button>
+      </form>
+
+      <ul className="space-y-2">
+        {tasks.map((task) => (
+          <li
+            key={task.id}
+            className={`flex justify-between items-center p-2 rounded-md ${
+              task.completed ? "bg-green-600" : "bg-gray-700"
+            }`}
+          >
+            <label className="flex-1 text-white cursor-pointer">
+              <input
+                type="checkbox"
+                checked={task.completed}
+                onChange={() => toggleTask(task.id)}
+                className="mr-2"
+              />
+              <span className={task.completed ? "line-through" : ""}>
+                {task.title}
+              </span>
+            </label>
+            <button
+              onClick={() => deleteTask(task.id)}
+              className="bg-red-600 hover:bg-red-700 text-white p-1 rounded-md"
+            >
+              Eliminar
+            </button>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
 }
+
+export default TodoList;
