@@ -29,6 +29,35 @@ app.get("/", (req, res) => {
   res.send("API funcionando 🚀");
 });
 
+// 📌 Ruta para verificar la conexión a la BD y estadísticas
+app.get("/api/db-status", async (req, res) => {
+  try {
+    // Verificar conexión a la BD
+    await sequelize.authenticate();
+    
+    // Obtener conteo de tareas
+    const totalTasks = await Task.count();
+    const completedTasks = await Task.count({ where: { completed: true } });
+    const pendingTasks = totalTasks - completedTasks;
+    
+    res.json({
+      connection: "Conectado a la base de datos correctamente",
+      database: process.env.DB_NAME,
+      statistics: {
+        totalTasks,
+        completedTasks,
+        pendingTasks
+      }
+    });
+  } catch (error) {
+    console.error("❌ Error en la verificación de la BD:", error);
+    res.status(500).json({
+      connection: "Error al conectar con la base de datos",
+      error: error.message
+    });
+  }
+});
+
 // Iniciar servidor
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en http://localhost:${PORT}`);
